@@ -1,0 +1,19 @@
+.menubutton{
+    background-color: var(--button-background-color);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    border: none;
+}
+.menubutton:hover{
+    cursor: pointer;
+    background-color: var(--button-background-hover-color);    
+}
+.menubutton > img{
+    width: 50%;
+    height: 50%;
+    object-fit: cover;
+}

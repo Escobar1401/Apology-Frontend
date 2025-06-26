@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+:root {
+  --primary-background-color: #e2f1ff;
+  --secondary-background-color: #ffffff;
+  --tertiary-background-color: #000000;
+  --quaternary-background-color: #005f73;
+  --quinary-background-color: #f32323;
+
+  --primary-text-color: #005f73;
+  --secondary-text-color: #8a8a8a;
+  --tertiary-text-color: #000000;
+  --quaternary-text-color: #ffffff;
+
+  --button-primary-background-color: #005f73;
+  --button-secondary-background-color: #ffffff;
+  --button-tertiary-background-color: #f32323;
+  --button-quaternary-background-color: #cae2f9;
+
+  --button-primary-hover-background-color: #004f5f;
+  --button-secondary-hover-background-color: #cccccc;
+  --button-tertiary-hover-background-color: #bd1d1d;
+  --button-quaternary-hover-background-color: #bcdefe;
+
+  --button-primary-text-color: #ffffff;
+  --button-secondary-text-color: #005f73;
+  --button-tertiary-text-color: #ffffff;
+  --button-quaternary-text-color: #005f73;
+}

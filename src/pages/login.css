@@ -1,0 +1,217 @@
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.login-container {
+  background-color: var(--primary-background-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  font-family: poppins, sans-serif;
+}
+
+.login-container-title {
+  color: var(--primary-text-color);
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.login-container-form {
+  background-color: var(--secondary-background-color);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.login-container-form-title_head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.login-container-form-title_head_back {
+  transform: translateX(-70px);
+}
+
+.login-container-form-title {
+  font-size: 1.8rem;
+  color: var(--primary-text-color);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-container-form-title-profile {
+  font-size: 1.8rem;
+  color: var(--primary-text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-container-form-subtitle-profile {
+  font-size: 1rem;
+  text-align: center;
+  word-break: break-word;
+  color: var(--secondary-text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-container-form-image-profile {
+  height: 200px;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-info-label {
+  font-size: 1rem;
+  color: var(--primary-text-color);
+}
+
+.profile-info-value {
+  font-size: 1rem;
+  color: var(--secondary-text-color);
+  word-break: break-word;
+}
+
+.login-form-input-label {
+  display: block;
+  font-size: 1rem;
+  color: var(--primary-text-color);
+  margin-bottom: 5px;
+}
+
+.login-form-input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--primary-text-color);
+  border-radius: 5px;
+  font-size: 1rem;
+  color: var(--primary-text-color);
+  background-color: var(--primary-background-color);
+  box-sizing: border-box;
+  margin-bottom: 15px;
+}
+
+.login-button-container {
+  width: 100%;
+}
+
+.login-container-form-forgot-password {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.login-container-form-forgot-password>a {
+  color: var(--primary-text-color);
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.login-container-form-forgot-password>a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  background-color: #ffebee;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.error-message-text {
+  color: #c62828;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.success-message-text {
+  color: #2e7d32;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--primary-text-color);
+  border-radius: 5px;
+  font-size: 1rem;
+  color: var(--primary-text-color);
+  background-color: var(--secondary-background-color);
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("../assets/down.svg");
+  background-repeat: no-repeat;
+  background-position-x: 95%;
+  background-position-y: 50%;
+  background-size: 40px;
+}
+
+.filter-title {
+  font-size: 1.2rem;
+  color: var(--primary-text-color);
+}
+
+.login-container-form-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}

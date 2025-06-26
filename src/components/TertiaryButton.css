@@ -1,0 +1,39 @@
+.tertiary-button {
+  background-color: var(--button-tertiary-background-color);
+  color: var(--button-tertiary-text-color);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  width: 100%;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tertiary-button:hover {
+  background-color: var(--button-tertiary-hover-background-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tertiary-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tertiary-button.disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.tertiary-button.disabled:hover {
+  background-color: #cccccc;
+  transform: none;
+  box-shadow: none;
+}

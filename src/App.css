@@ -1,0 +1,50 @@
+.container {
+  background-color: var(--primary-background-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 15px;
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.title-container {
+  text-align: center;
+  color: var(--primary-text-color);
+}
+
+.logo-container {
+  width: 230px;
+  height: auto;
+  animation: fadeIn 1s ease-out;
+}
+
+.logo-container>img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-name>span {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.project-name>img {
+  animation-delay: 0.3s;
+}
