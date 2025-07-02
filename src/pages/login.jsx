@@ -8,12 +8,38 @@ function Login() {
     const [contraseña, setContraseña] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
+
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@ieluiscarlosgalansarmiento\.edu\.co$/;
+        if (!email) return 'El correo electrónico es requerido';
+        if (!re.test(String(email).toLowerCase())) return 'Ingrese un correo electrónico válido @ieluiscarlosgalansarmiento.edu.co';
+        return '';
+    };
+
+    const validatePassword = (password) => {
+        if (!password) return 'La contraseña es requerida';
+        return '';
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        
+        // Validate fields
+        const emailValidation = validateEmail(correo);
+        const passwordValidation = validatePassword(contraseña);
+        
+        setEmailError(emailValidation);
+        setPasswordError(passwordValidation);
         setError('');
+        
+        if (emailValidation || passwordValidation) {
+            return;
+        }
+
+        setLoading(true);
 
         try {
             const res = await fetch('http://localhost:3000/api/login', {
@@ -37,9 +63,25 @@ function Login() {
             }
         } catch (error) {
             console.error('🚨 Error de red', error);
-            setError('Error al iniciar sesión');
+            setError('Error al conectar con el servidor. Por favor, intente de nuevo.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleEmailChange = (e) => {
+        const value = e.target.value;
+        setCorreo(value);
+        if (emailError) {
+            setEmailError(validateEmail(value));
+        }
+    };
+
+    const handlePasswordChange = (e) => {
+        const value = e.target.value;
+        setContraseña(value);
+        if (passwordError) {
+            setPasswordError(validatePassword(value));
         }
     };
 
@@ -56,28 +98,48 @@ function Login() {
                     </div>
                 )}
 
-                <label className="login-form-input-label">Correo Institucional</label>
-                <input
-                    type="email"
-                    placeholder="Correo institucional"
-                    className="login-form-input-field"
-                    value={correo}
-                    onChange={(e) => setCorreo(e.target.value)}
-                    required
-                />
+                <div className="form-group">
+                    <label className="login-form-input-label">Correo Institucional</label>
+                    <input
+                        type="email"
+                        placeholder="Correo institucional"
+                        className={`login-form-input-field ${emailError ? 'input-error' : ''}`}
+                        value={correo}
+                        onChange={handleEmailChange}
+                        onBlur={() => setEmailError(validateEmail(correo))}
+                        required
+                    />
+                    {emailError && (
+                        <div className="error-message" style={{ fontSize: '0.8rem', marginTop: '5px' }}>
+                            {emailError}
+                        </div>
+                    )}
+                </div>
 
-                <label className="login-form-input-label">Contraseña</label>
-                <input
-                    type="password"
-                    placeholder="********"
-                    className="login-form-input-field"
-                    value={contraseña}
-                    onChange={(e) => setContraseña(e.target.value)}
-                    
-                />
+                <div className="form-group">
+                    <label className="login-form-input-label">Contraseña</label>
+                    <input
+                        type="password"
+                        placeholder="********"
+                        className={`login-form-input-field ${passwordError ? 'input-error' : ''}`}
+                        value={contraseña}
+                        onChange={handlePasswordChange}
+                        onBlur={() => setPasswordError(validatePassword(contraseña))}
+                        required
+                    />
+                    {passwordError && (
+                        <div className="error-message" style={{ fontSize: '0.8rem', marginTop: '5px' }}>
+                            {passwordError}
+                        </div>
+                    )}
+                </div>
 
                 <div className="login-button-container">
-                    <PrimaryButton text={loading ? 'Iniciando sesión...' : 'Iniciar Sesión'} type="submit" disabled={loading} />
+                    <PrimaryButton 
+                        text={loading ? 'Iniciando sesión...' : 'Iniciar Sesión'} 
+                        type="submit" 
+                        disabled={loading} 
+                    />
                 </div>
 
                 <div className="login-container-form-forgot-password">

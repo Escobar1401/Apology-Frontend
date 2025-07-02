@@ -8,6 +8,7 @@ import Recoverypass from "./pages/recoverypass"; // Importar componente de recup
 import UpdatePass from "./pages/updatepass"; // Importar componente de cambiar contraseña
 import Profile from "./pages/profile"; // Importar componente de perfil
 import EditProfile from "./pages/editprofile"; // Importar componente de editar perfil
+import ChangePass from "./pages/changepass"; // Importar componente de cambiar contraseña
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} /> {/* Ruta de login */}
         <Route path="/recoverypass" element={<Recoverypass />} /> {/* Ruta de recuperar contraseña */}
+        <Route path="/changepass" element={<ChangePass />} /> {/* Ruta de cambiar contraseña */}
         <Route element={<MainLayout />}> {/* Rutas en las que se carga el layout (menú dinámico) */}
           <Route path="/home" element={<Home />} /> {/* Ruta de home */}
           <Route path="/register-user" element={<RegisterUser />} /> {/* Ruta de registro de usuario */}
