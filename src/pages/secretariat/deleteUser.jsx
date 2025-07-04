@@ -98,6 +98,8 @@ function DeleteUser() {
           key={usuario.id}
           usuario={usuario}
           onDelete={handleDelete}
+          showViewButton={false}
+          showDeleteButton={true}
         />
       ))}
     </div>

@@ -57,7 +57,7 @@ function UpdatePass() {
 
         setCurrentPasswordError(currentPasswordValidation);
         setConfirmPasswordError(confirmPasswordValidation);
-
+        
         if (newPassword !== confirmPassword) {
             setError("Las contraseñas nuevas no coinciden.");
             return;

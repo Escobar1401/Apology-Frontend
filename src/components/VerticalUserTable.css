@@ -7,12 +7,14 @@
     overflow: hidden;
     transition: all 0.3s ease;
 }
+
 .vertical-user-table-th {
     background-color: var(--quaternary-background-color);
     color: var(--quaternary-text-color);
     text-align: start;
     padding: 6px;
 }
+
 .vertical-user-table-td {
     background-color: var(--secondary-background-color);
     color: var(--tertiary-text-color);
@@ -28,9 +30,27 @@
     height: 40px;
 }
 
-.vertical-user-table-delete > button{
+.vertical-user-table-delete>button {
     background-color: transparent;
-    color: var(--button-tertiary-text-color);
+    color: var(--button-primary-text-color);
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    width: 100%;
+    cursor: pointer;
+}
+
+.vertical-user-table-view {
+    background-color: var(--primary-background-color);
+    color: var(--primary-text-color);
+    text-align: center;
+    height: 40px;
+}
+
+.vertical-user-table-view>button {
+    background-color: transparent;
+    color: var(--button-primary-text-color);
     border: none;
     font-size: 1rem;
     font-weight: bold;

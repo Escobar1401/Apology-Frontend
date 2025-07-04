@@ -20,11 +20,13 @@ const menuOptions = {
     { text: "Eliminar usuario", link: "delete-user" },
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Mi perfil", link: "profile" },
+    { text: "Lista de estudiantes", link: "liststudents" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
   Estudiante: [
     { text: "Inicio", link: "home" },
     { text: "Actualizar contraseña", link: "updatepass" },
+    { text: "Justificar inasistencia", link: "justification-absence"},
     { text: "Mi perfil", link: "profile" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
@@ -32,6 +34,7 @@ const menuOptions = {
     { text: "Inicio", link: "home" },
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Mi perfil", link: "profile" },
+    { text: "Lista de estudiantes", link: "liststudents" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
   TutorLegal: [
@@ -44,12 +47,14 @@ const menuOptions = {
     { text: "Inicio", link: "home" },
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Mi perfil", link: "profile" },
+    { text: "Lista de estudiantes", link: "liststudents" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
   Rector: [
     { text: "Inicio", link: "home" },
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Mi perfil", link: "profile" },
+    { text: "Lista de estudiantes", link: "liststudents" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
 };
