@@ -1,8 +1,8 @@
 import './PrimaryButton.css';
 
-function PrimaryButton({ text, type = 'button' }) {
+function PrimaryButton({ text, type = 'button', onClick }) {
     return (
-        <button type={type} className='primary-button' onClick={() => {}}>
+        <button type={type} className='primary-button' onClick={onClick}>
             <span>{text}</span>
         </button>
     )

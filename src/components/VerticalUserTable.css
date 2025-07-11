@@ -42,8 +42,8 @@
 }
 
 .vertical-user-table-view {
-    background-color: var(--primary-background-color);
-    color: var(--primary-text-color);
+    background-color: var(--button-primary-background-color);
+    color: var(--button-primary-text-color);
     text-align: center;
     height: 40px;
 }
