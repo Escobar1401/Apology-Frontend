@@ -118,6 +118,7 @@
   background-color: var(--primary-background-color);
   box-sizing: border-box;
   margin-bottom: 15px;
+  cursor: pointer;
 }
 
 .login-form-input-field:disabled {
@@ -299,4 +300,13 @@ hr {
   font-size: 1rem;
   color: var(--secondary-text-color);
   word-break: break-word;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
 }

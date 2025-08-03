@@ -1,5 +1,5 @@
 import './home.css';
-
+import logo from '../../public/rocket.svg';
 function Home() {
     return (
         <div className="home-container">

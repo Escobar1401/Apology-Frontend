@@ -1,0 +1,22 @@
+.login-form-input-field-materias {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.login-form-input-field-materias-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.login-form-input-field-materias-label input {
+  cursor: pointer;
+}
+
+.login-form-input-field-materias-label:hover {
+  opacity: 0.8;
+}
+

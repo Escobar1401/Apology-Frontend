@@ -46,25 +46,30 @@ function JustificationAbsence() {
         
         // Obtener datos del usuario
         const userResponse = await fetch(`http://localhost:3000/api/usuarios/${userId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
         
-        if (!userResponse.ok) throw new Error('Error al cargar datos del usuario');
+        if (!userResponse.ok) {
+          throw new Error('Error al obtener datos del usuario');
+        }
         
         const userData = await userResponse.json();
         setUsuario(userData);
-
-        // Si es estudiante, obtener su tutor legal
-        if (userData.rol === 'Estudiante') {
-          const tutorResponse = await fetch(`http://localhost:3000/api/usuarios/estudiantes/${userId}/tutor-legal`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          
-          if (tutorResponse.ok) {
-            const tutorData = await tutorResponse.json();
-            setTutorLegal(tutorData);
+        
+        // Obtener tutor legal del estudiante
+        const tutorResponse = await fetch(`http://localhost:3000/api/usuarios/estudiantes/${userId}/tutor-legal`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
+        });
+        
+        if (tutorResponse.ok) {
+          const tutorData = await tutorResponse.json();
+          setTutorLegal(tutorData);
         }
+        
       } catch (error) {
         console.error('Error al cargar datos:', error);
         setMensaje('Error al cargar los datos del usuario');
@@ -163,7 +168,7 @@ function JustificationAbsence() {
 
   return (
     <div className="login-container">
-      <form className="login-container-form" onSubmit={handleSubmit}>
+      <form className="login-form" onSubmit={handleSubmit}>
         <div className="login-form-container">
           <h2 className="login-form-title">Justificación de inasistencia</h2>
           
@@ -315,5 +320,3 @@ function JustificationAbsence() {
 }
 
 export default JustificationAbsence;
-
-

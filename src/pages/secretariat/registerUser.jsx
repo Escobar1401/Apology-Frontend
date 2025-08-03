@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PrimaryButton from '../../components/PrimaryButton';
+import SearchBar from '../../components/SearchBar';
 import '../login.css';
 
 function RegisterUsuario() {
@@ -15,21 +16,20 @@ function RegisterUsuario() {
         contraseña: '',
         rol: 'Estudiante' // Establecer 'Estudiante' como valor por defecto
     });
-    
+
     const [loading, setLoading] = useState(false);
     const [grupos, setGrupos] = useState([]);
     const [selectedGrupo, setSelectedGrupo] = useState('');
     const [loadingGrupos, setLoadingGrupos] = useState(false);
-    // Nuevos estados para la búsqueda de estudiantes
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
 
-    // Efecto para cargar grupos cuando el rol es Estudiante
+    // Efecto para cargar grupos cuando el rol es Estudiante y TutorLegal
     useEffect(() => {
         const fetchGrupos = async () => {
-            if (form.rol === 'Estudiante') {
+            if (form.rol === 'Estudiante' || form.rol === 'TutorLegal') {
                 setLoadingGrupos(true);
                 try {
                     const response = await fetch('http://localhost:3000/api/grupos');
@@ -58,10 +58,14 @@ function RegisterUsuario() {
             setSearchResults([]);
             return;
         }
-        
+
         setIsSearching(true);
         try {
-            const response = await fetch(`http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante`);
+            const url = selectedGrupo
+                ? `http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante&grupoId=${selectedGrupo}`
+                : `http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante`;
+
+            const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
                 setSearchResults(data);
@@ -72,6 +76,15 @@ function RegisterUsuario() {
             setIsSearching(false);
         }
     };
+
+    // Efecto para buscar estudiantes cuando cambia el grupo seleccionado
+    useEffect(() => {
+        if (selectedGrupo && searchTerm.length >= 3) {
+            searchStudents(searchTerm);
+        } else {
+            setSearchResults([]);
+        }
+    }, [selectedGrupo]);
 
     const handleSearchChange = (e) => {
         const value = e.target.value;
@@ -95,7 +108,7 @@ function RegisterUsuario() {
 
     const handleGrupoChange = (e) => {
         setSelectedGrupo(e.target.value);
-    }; 
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -140,7 +153,8 @@ function RegisterUsuario() {
             }
 
             const userData = await userResponse.json();
-            
+            console.log('Usuario creado - Respuesta del servidor:', userData);
+
             // Si es estudiante, asignar al grupo
             if (form.rol === 'Estudiante' && selectedGrupo) {
                 await fetch('http://localhost:3000/api/grupos/estudiantes-grupo', {
@@ -152,22 +166,45 @@ function RegisterUsuario() {
                     })
                 });
             }
-            
+
             // Si es Tutor Legal, asignar al estudiante
             if (form.rol === 'TutorLegal' && selectedStudent) {
-                await fetch('http://localhost:3000/api/tutores/estudiantes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        tutor_id: userData.id,
-                        estudiante_id: selectedStudent.id
-                    })
+                console.log('Intentando crear relación tutor-estudiante con:', {
+                    tutor_id: userData.id,
+                    estudiante_id: selectedStudent.id,
+                    datosTutor: userData,
+                    datosEstudiante: selectedStudent
                 });
+                try {
+                    const relacionResponse = await fetch('http://localhost:3000/api/usuarios/tutores/estudiantes', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            tutor_id: userData.id,
+                            estudiante_id: selectedStudent.id
+                        })
+                    });
+
+                    if (!relacionResponse.ok) {
+                        const errorData = await relacionResponse.json().catch(() => ({}));
+                        console.error('Error en la respuesta del servidor al crear la relación:', errorData);
+                        throw new Error(errorData.mensaje || 'Error al crear la relación tutor-estudiante');
+                    }
+
+                    const relacionData = await relacionResponse.json();
+                    console.log('Relación creada exitosamente:', relacionData);
+                } catch (error) {
+                    console.error('Error al crear la relación tutor-estudiante:', error);
+                    alert('Se creó el tutor, pero hubo un error al asignar el estudiante. Por favor, actualice la relación manualmente.');
+                }
             }
-            
+
             alert(`✅ ${form.rol} registrado correctamente`);
             navigate('/home');
-            
+
         } catch (error) {
             console.error('Error en la solicitud:', error);
             alert('‼️ Error al procesar la solicitud. Por favor, intente de nuevo.');
@@ -290,82 +327,79 @@ function RegisterUsuario() {
 
                 {form.rol === 'TutorLegal' && (
                     <>
-                        <label className="login-form-input-label">Buscar Estudiante</label>
-                        <div style={{ position: 'relative' }}>
-                            <input
-                                type="text"
-                                placeholder="Buscar por nombre o documento"
-                                className="login-form-input-field"
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                                disabled={!!selectedStudent}
-                            />
-                            {selectedStudent && (
-                                <button 
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedStudent(null);
-                                        setSearchTerm('');
+                        <label className="login-form-input-label">Grupo</label>
+                        <select
+                            name="grupo_id"
+                            className="login-form-input-field"
+                            value={selectedGrupo}
+                            onChange={handleGrupoChange}
+                            required={form.rol === 'Estudiante'}
+                            disabled={loadingGrupos}
+                        >
+                            <option value="">Seleccione un grupo</option>
+                            {grupos.map(grupo => (
+                                <option key={grupo.id} value={grupo.id}>
+                                    {grupo.nombre} - {grupo.grado_nombre}
+                                </option>
+                            ))}
+                        </select>
+                        {loadingGrupos && <p>Cargando grupos...</p>}
+
+                        {selectedGrupo && (
+                            <>
+                                <label className="login-form-input-label">Buscar Estudiante</label>
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por nombre, apellido o documento"
+                                    className="login-form-input-field"
+                                    value={searchTerm}
+                                    onChange={e => {
+                                        const value = e.target.value;
+                                        setSearchTerm(value);
+                                        if (value.length < 1) {
+                                            setSearchResults([]);
+                                            return;
+                                        }
+                                        fetch(`http://localhost:3000/api/grupos/grupos/${selectedGrupo}/estudiantes`)
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                const criterio = value.toLowerCase();
+                                                const filtrados = data.filter(est =>
+                                                    est.nombres.toLowerCase().includes(criterio) ||
+                                                    est.apellidos.toLowerCase().includes(criterio) ||
+                                                    est.documento.toLowerCase().includes(criterio)
+                                                );
+                                                setSearchResults(filtrados);
+                                            });
                                     }}
-                                    style={{
-                                        position: 'absolute',
-                                        right: '10px',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        background: 'none',
-                                        border: 'none',
-                                        color: '#666',
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    ✕
-                                </button>
-                            )}
-                            {searchResults.length > 0 && !selectedStudent && (
-                                <ul style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: 0,
-                                    right: 0,
-                                    backgroundColor: 'white',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '4px',
-                                    maxHeight: '200px',
-                                    overflowY: 'auto',
-                                    zIndex: 1000,
-                                    margin: '5px 0 0',
-                                    padding: 0,
-                                    listStyle: 'none'
-                                }}>
-                                    {searchResults.map(student => (
-                                        <li 
-                                            key={student.id}
-                                            onClick={() => selectStudent(student)}
-                                            style={{
-                                                padding: '8px 12px',
-                                                cursor: 'pointer',
-                                                borderBottom: '1px solid #eee'
-                                            }}
-                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                                            onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
-                                        >
-                                            {student.nombres} {student.apellidos} - {student.documento}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-                        {isSearching && <p>Buscando estudiantes...</p>}
-                        {selectedStudent && (
-                            <div style={{ 
-                                marginTop: '10px',
-                                padding: '10px',
-                                backgroundColor: '#f0f8ff',
-                                borderRadius: '4px',
-                                border: '1px solid #d0e3ff'
-                            }}>
-                                <strong>Estudiante seleccionado:</strong> {selectedStudent.nombres} {selectedStudent.apellidos} - {selectedStudent.documento}
-                            </div>
+                                    disabled={!selectedGrupo || !!selectedStudent}
+                                />
+                                {searchResults.length > 0 && !selectedStudent && (
+                                    <ul className="login-form-input-field">
+                                        {searchResults.map(student => (
+                                            <li
+                                                key={student.id}
+                                                onClick={() => {
+                                                    setSelectedStudent(student);
+                                                    setSearchTerm(`${student.nombres} ${student.apellidos} (${student.documento})`);
+                                                    setSearchResults([]);
+                                                }}
+                                                style={{ padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #eee' }}
+                                                onMouseEnter={e => e.target.style.backgroundColor = '#f5f5f5'}
+                                                onMouseLeave={e => e.target.style.backgroundColor = 'white'}
+                                            >
+                                                {student.nombres} {student.apellidos} - {student.documento}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                {selectedStudent && (
+                                    <div className="login-form-input-field">
+                                        Estudiante seleccionado: <b>{selectedStudent.nombres} {selectedStudent.apellidos}</b> ({selectedStudent.documento})
+                                        <button className="cancel-button" type="button" onClick={() => { setSelectedStudent(null); setSearchTerm(''); }}>✕</button>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </>
                 )}
@@ -379,6 +413,7 @@ function RegisterUsuario() {
                 </div>
             </form>
         </div>
+
     );
 }
 
