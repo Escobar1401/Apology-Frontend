@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
 function JustificationAbsence() {
-  const [mensaje, setMensaje] = useState("");
-  const [colorMensaje, setColorMensaje] = useState('red');
+  const [mensajeError, setMensajeError] = useState("");
+  const [mensajeExito, setMensajeExito] = useState("");
+  const [mensajeMaterias, setMensajeMaterias] = useState("");
+  const [mensajeFecha, setMensajeFecha] = useState("");
+  const [mensajeMotivo, setMensajeMotivo] = useState("");
+  const [mensajeMotivoOtro, setMensajeMotivoOtro] = useState("");
   const [usuario, setUsuario] = useState({});
   const [materias, setMaterias] = useState([]);
   const [tutorLegal, setTutorLegal] = useState(null);
@@ -67,8 +71,7 @@ function JustificationAbsence() {
         }
       } catch (error) {
         console.error('Error al cargar datos:', error);
-        setMensaje('Error al cargar los datos del usuario');
-        setColorMensaje('red');
+        setMensajeError('Error al cargar los datos del usuario');
       }
     }
     
@@ -76,41 +79,64 @@ function JustificationAbsence() {
   }, [navigate]);
 
   const handleMateriaChange = (materiaId) => {
-    setMateriasSeleccionadas(prev => 
+    setMateriasSeleccionadas(prev =>
       prev.includes(materiaId)
         ? prev.filter(id => id !== materiaId)
         : [...prev, materiaId]
     );
+    // Limpiar el mensaje de error si se selecciona al menos una materia
+    if (materiasSeleccionadas.length > 0) {
+      setMensajeMaterias('');
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Reset all messages
+    setMensajeError('');
+    setMensajeExito('');
+    setMensajeMaterias('');
+    setMensajeFecha('');
+    setMensajeMotivo('');
+    setMensajeMotivoOtro('');
+    
+    // Validate form fields
+    let hasErrors = false;
+    
+    if (materiasSeleccionadas.length === 0) {
+      setMensajeMaterias('Por favor seleccione al menos una materia');
+      hasErrors = true;
+    }
+
+    if (!fechaInasistencia) {
+      setMensajeFecha('Por favor seleccione la fecha de inasistencia');
+      hasErrors = true;
+    }
+
+    if (!motivo) {
+      setMensajeMotivo('Por favor seleccione un motivo');
+      hasErrors = true;
+    }
+
+    if (motivo === 'Otro' && !otroMotivo.trim()) {
+      setMensajeMotivoOtro('Por favor especifique el motivo de la inasistencia');
+      hasErrors = true;
+    }
+    
+    if (hasErrors) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     setIsLoading(true);
     
     try {
-      // Validaciones
-      if (materiasSeleccionadas.length === 0) {
-        throw new Error('Por favor seleccione al menos una materia');
-      }
-
-      if (!fechaInasistencia) {
-        throw new Error('Por favor seleccione la fecha de inasistencia');
-      }
-
-      if (!motivo) {
-        throw new Error('Por favor seleccione un motivo');
-      }
-
-      if (motivo === 'Otro' && !otroMotivo.trim()) {
-        throw new Error('Por favor especifique el motivo de la inasistencia');
-      }
-
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.id;
 
@@ -128,22 +154,44 @@ function JustificationAbsence() {
         formData.append('archivo', archivo);
       }
 
+      console.log('Sending request to:', 'http://localhost:3000/api/justificaciones');
+      console.log('Form data entries:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ', pair[1]);
+      }
+
       const response = await fetch('http://localhost:3000/api/justificaciones', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          // Note: Don't set Content-Type header when sending FormData
+          // The browser will set it automatically with the correct boundary
         },
         body: formData
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Error al enviar la justificación');
+      let data;
+      try {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          console.error('Non-JSON response:', text);
+          throw new Error(`Error en el servidor (${response.status}): ${text}`);
+        }
+      } catch (error) {
+        console.error('Error parsing response:', error);
+        throw new Error('Error al procesar la respuesta del servidor');
       }
 
-      setMensaje('Justificación enviada correctamente');
-      setColorMensaje('green');
+      if (!response.ok) {
+        console.error('Server error response:', data);
+        throw new Error(data.error || data.message || 'Error al enviar la justificación');
+      }
+
+      // Only show success message if the request was successful
+      setMensajeExito('Justificación enviada correctamente');
       
       // Reset form
       setFechaInasistencia('');
@@ -154,22 +202,57 @@ function JustificationAbsence() {
       
     } catch (error) {
       console.error('Error al enviar la justificación:', error);
-      setMensaje(error.message || 'Error al enviar la justificación');
-      setColorMensaje('red');
+      setMensajeError(error.message || 'Error al enviar la justificación');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleFechaChange = (e) => {
+    setFechaInasistencia(e.target.value);
+    // Clear fecha error when user selects a date
+    if (e.target.value) {
+      setMensajeFecha('');
+    }
+  };
+
+  const handleMotivoChange = (e) => {
+    setMotivo(e.target.value);
+    // Clear motivo error when user selects a reason
+    if (e.target.value) {
+      setMensajeMotivo('');
+    }
+    // If changing from 'Otro' to something else, clear the otroMotivo error
+    if (e.target.value !== 'Otro') {
+      setMensajeMotivoOtro('');
+    }
+  };
+
+  const handleOtroMotivoChange = (e) => {
+    setOtroMotivo(e.target.value);
+    // Clear otroMotivo error when user starts typing
+    if (e.target.value.trim()) {
+      setMensajeMotivoOtro('');
     }
   };
 
   return (
     <div className="login-container">
       <form className="login-container-form" onSubmit={handleSubmit}>
+        <h2 className="login-form-title">Justificación de inasistencia</h2>
         <div className="login-form-container">
-          <h2 className="login-form-title">Justificación de inasistencia</h2>
           
-          {mensaje && (
-            <div className={`mensaje ${colorMensaje === 'red' ? 'error' : 'success'}`}>
-              {mensaje}
+          {/* Mensaje de exito al enviar la justificación*/}
+          {mensajeExito && (
+            <div className="mensaje-exito">
+              {mensajeExito}
+            </div>
+          )}
+
+          {/* Mensaje de error al enviar la justificación*/}
+          {mensajeError && (
+            <div className="mensaje-error">
+              {mensajeError}
             </div>
           )}
           
@@ -237,6 +320,13 @@ function JustificationAbsence() {
 
           <hr />
 
+          {/*Mensaje de error para seleccion de materias*/}
+          {mensajeMaterias && (
+            <div className="mensaje-error">
+              {mensajeMaterias}
+            </div>
+          )}
+          
           <label className="login-form-input-label">Materias a las que faltó: *</label>
           <div className="login-form-input-field-materias">
             {materias.map((materia) => (
@@ -251,20 +341,34 @@ function JustificationAbsence() {
             ))}
           </div>
 
+          {/*Mensaje de error para seleccion de fecha*/}
+          {mensajeFecha && (
+            <div className="mensaje-error">
+              {mensajeFecha}
+            </div>
+          )}
+          
           <label className="login-form-input-label">Fecha de inasistencia *</label>
           <input 
             type="date" 
             className="login-form-input-field" 
             value={fechaInasistencia}
-            onChange={(e) => setFechaInasistencia(e.target.value)}
+            onChange={handleFechaChange}
             max={new Date().toISOString().split('T')[0]}
           />
 
+          {/*Mensaje de error para seleccion de motivo*/}
+          {mensajeMotivo && (
+            <div className="mensaje-error">
+              {mensajeMotivo}
+            </div>
+          )}
+          
           <label className="login-form-input-label">Motivo de la inasistencia *</label>
           <select 
             className="login-form-input-field"
             value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
+            onChange={handleMotivoChange}
           >
             <option value="">Seleccione un motivo</option>
             <option value="Enfermedad">Enfermedad</option>
@@ -273,6 +377,13 @@ function JustificationAbsence() {
             <option value="Otro">Otro</option>
           </select>
 
+          {/*Mensaje de error para seleccion de motivo*/}
+          {mensajeMotivoOtro && (
+            <div className="mensaje-error">
+              {mensajeMotivoOtro}
+            </div>
+          )}
+          
           {motivo === 'Otro' && (
             <>
               <label className="login-form-input-label">Especifique el motivo *</label>
@@ -280,12 +391,12 @@ function JustificationAbsence() {
                 type="text"
                 className="login-form-input-field"
                 value={otroMotivo}
-                onChange={(e) => setOtroMotivo(e.target.value)}
+                onChange={handleOtroMotivoChange}
                 placeholder="Describa el motivo de la inasistencia"
               />
             </>
           )}
-
+          
           <label className="login-form-input-label">Adjuntar archivo (opcional)</label>
           <input 
             type="file" 
