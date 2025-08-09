@@ -1,5 +1,4 @@
 import PrimaryButton from '../../components/PrimaryButton';
-import './JustificationAbsence.css';
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
@@ -47,14 +46,14 @@ function JustificationAbsence() {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const userId = payload.id;
-        
+
         // Obtener datos del usuario
         const userResponse = await fetch(`http://localhost:3000/api/usuarios/${userId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+
         if (!userResponse.ok) throw new Error('Error al cargar datos del usuario');
-        
+
         const userData = await userResponse.json();
         setUsuario(userData);
 
@@ -63,7 +62,7 @@ function JustificationAbsence() {
           const tutorResponse = await fetch(`http://localhost:3000/api/usuarios/estudiantes/${userId}/tutor-legal`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          
+
           if (tutorResponse.ok) {
             const tutorData = await tutorResponse.json();
             setTutorLegal(tutorData);
@@ -74,7 +73,7 @@ function JustificationAbsence() {
         setMensajeError('Error al cargar los datos del usuario');
       }
     }
-    
+
     fetchUsuario();
   }, [navigate]);
 
@@ -92,7 +91,7 @@ function JustificationAbsence() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Reset all messages
     setMensajeError('');
     setMensajeExito('');
@@ -100,10 +99,10 @@ function JustificationAbsence() {
     setMensajeFecha('');
     setMensajeMotivo('');
     setMensajeMotivoOtro('');
-    
+
     // Validate form fields
     let hasErrors = false;
-    
+
     if (materiasSeleccionadas.length === 0) {
       setMensajeMaterias('Por favor seleccione al menos una materia');
       hasErrors = true;
@@ -123,7 +122,7 @@ function JustificationAbsence() {
       setMensajeMotivoOtro('Por favor especifique el motivo de la inasistencia');
       hasErrors = true;
     }
-    
+
     if (hasErrors) {
       return;
     }
@@ -135,7 +134,7 @@ function JustificationAbsence() {
     }
 
     setIsLoading(true);
-    
+
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const userId = payload.id;
@@ -145,11 +144,11 @@ function JustificationAbsence() {
       formData.append('fecha_inasistencia', fechaInasistencia);
       formData.append('materias', JSON.stringify(materiasSeleccionadas));
       formData.append('motivo', motivo);
-      
+
       if (otroMotivo) {
         formData.append('descripcion_adicional', otroMotivo);
       }
-      
+
       if (archivo) {
         formData.append('archivo', archivo);
       }
@@ -192,14 +191,14 @@ function JustificationAbsence() {
 
       // Only show success message if the request was successful
       setMensajeExito('Justificación enviada correctamente');
-      
+
       // Reset form
       setFechaInasistencia('');
       setMateriasSeleccionadas([]);
       setMotivo('');
       setOtroMotivo('');
       setArchivo(null);
-      
+
     } catch (error) {
       console.error('Error al enviar la justificación:', error);
       setMensajeError(error.message || 'Error al enviar la justificación');
@@ -241,7 +240,7 @@ function JustificationAbsence() {
       <form className="login-container-form" onSubmit={handleSubmit}>
         <h2 className="login-form-title">Justificación de inasistencia</h2>
         <div className="login-form-container">
-          
+
           {/* Mensaje de exito al enviar la justificación*/}
           {mensajeExito && (
             <div className="mensaje-exito">
@@ -255,9 +254,9 @@ function JustificationAbsence() {
               {mensajeError}
             </div>
           )}
-          
+
           <h3 className="login-form-subtitle">Datos del Estudiante</h3>
-          
+
           <label className="login-form-input-label">Nombre</label>
           <input
             type="text"
@@ -265,7 +264,7 @@ function JustificationAbsence() {
             className="login-form-input-field"
             readOnly
           />
-          
+
           <label className="login-form-input-label">Documento</label>
           <input
             type="text"
@@ -273,7 +272,7 @@ function JustificationAbsence() {
             className="login-form-input-field"
             readOnly
           />
-          
+
           <label className="login-form-input-label">Correo electrónico</label>
           <input
             type="email"
@@ -281,7 +280,7 @@ function JustificationAbsence() {
             className="login-form-input-field"
             readOnly
           />
-          
+
           <label className="login-form-input-label">Teléfono</label>
           <input
             type="tel"
@@ -289,7 +288,7 @@ function JustificationAbsence() {
             className="login-form-input-field"
             readOnly
           />
-          
+
           <label className="login-form-input-label">Grado</label>
           <input
             type="text"
@@ -297,25 +296,25 @@ function JustificationAbsence() {
             className="login-form-input-field"
             readOnly
           />
-          
+
           <hr />
-          
+
           <h3 className="login-form-subtitle">Datos del Acudiente</h3>
-          
+
           <label className="login-form-input-label">Nombre del acudiente</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={tutorLegal ? `${tutorLegal.nombres || ''} ${tutorLegal.apellidos || ''}` : 'No asignado'}
-            className="login-form-input-field" 
-            readOnly 
+            className="login-form-input-field"
+            readOnly
           />
-          
+
           <label className="login-form-input-label">Teléfono del acudiente</label>
-          <input 
-            type="tel" 
+          <input
+            type="tel"
             value={tutorLegal?.telefono || 'No asignado'}
-            className="login-form-input-field" 
-            readOnly 
+            className="login-form-input-field"
+            readOnly
           />
 
           <hr />
@@ -326,12 +325,12 @@ function JustificationAbsence() {
               {mensajeMaterias}
             </div>
           )}
-          
+
           <label className="login-form-input-label">Materias a las que faltó: *</label>
           <div className="login-form-input-field-materias">
             {materias.map((materia) => (
               <label key={materia.id} className="login-form-input-field-materias-label">
-                <input 
+                <input
                   type="checkbox"
                   checked={materiasSeleccionadas.includes(materia.id)}
                   onChange={() => handleMateriaChange(materia.id)}
@@ -347,11 +346,11 @@ function JustificationAbsence() {
               {mensajeFecha}
             </div>
           )}
-          
+
           <label className="login-form-input-label">Fecha de inasistencia *</label>
-          <input 
-            type="date" 
-            className="login-form-input-field" 
+          <input
+            type="date"
+            className="login-form-input-field"
             value={fechaInasistencia}
             onChange={handleFechaChange}
             max={new Date().toISOString().split('T')[0]}
@@ -363,9 +362,9 @@ function JustificationAbsence() {
               {mensajeMotivo}
             </div>
           )}
-          
+
           <label className="login-form-input-label">Motivo de la inasistencia *</label>
-          <select 
+          <select
             className="login-form-input-field"
             value={motivo}
             onChange={handleMotivoChange}
@@ -383,7 +382,7 @@ function JustificationAbsence() {
               {mensajeMotivoOtro}
             </div>
           )}
-          
+
           {motivo === 'Otro' && (
             <>
               <label className="login-form-input-label">Especifique el motivo *</label>
@@ -396,11 +395,11 @@ function JustificationAbsence() {
               />
             </>
           )}
-          
+
           <label className="login-form-input-label">Adjuntar archivo (opcional)</label>
-          <input 
-            type="file" 
-            className="login-form-input-field" 
+          <input
+            type="file"
+            className="login-form-input-field"
             onChange={(e) => setArchivo(e.target.files[0])}
             accept=".pdf,.jpg,.jpeg,.png"
           />
@@ -411,13 +410,13 @@ function JustificationAbsence() {
           )}
 
           <div className="login-button-container">
-            <PrimaryButton 
-              text={isLoading ? 'Enviando...' : 'Enviar justificación'} 
+            <PrimaryButton
+              text={isLoading ? 'Enviando...' : 'Enviar justificación'}
               type="submit"
               disabled={isLoading}
             />
           </div>
-          
+
           <p className="campo-requerido-nota">* Campos obligatorios</p>
         </div>
       </form>

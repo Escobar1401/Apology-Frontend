@@ -179,8 +179,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .filter {
@@ -233,15 +240,16 @@ hr {
   border-collapse: collapse;
 }
 
-.list-students-th, .list-students-td {
-    border: 1px solid var(--primary-text-color);
-    padding: 8px;
-    text-align: center;
+.list-students-th,
+.list-students-td {
+  border: 1px solid var(--primary-text-color);
+  padding: 8px;
+  text-align: center;
 }
 
 .list-students-th {
-    background-color: var(--primary-background-color);
-    color: var(--primary-text-color);
+  background-color: var(--primary-background-color);
+  color: var(--primary-text-color);
 }
 
 .list-students-td-actions {
@@ -309,4 +317,111 @@ hr {
   border-radius: 4px;
   padding: 4px 8px;
   cursor: pointer;
+}
+
+.excuses-table {
+  margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.excuses-table-tr {
+  background-color: var(--primary-background-color);
+  color: var(--primary-text-color);
+}
+
+.excuses-table-td {
+  padding: 8px;
+  text-align: center;
+}
+
+.excuses-table-td-actions {
+  cursor: pointer;
+  color: var(--primary-text-color);
+  font-weight: bold;
+  text-decoration: underline;
+  text-align: end;
+}
+
+.myexcuses-container {
+  margin-top: 20px;
+}
+
+.myexcuses-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.myexcuses-table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.myexcuses-table-row {
+  background-color: var(--secondary-background-color);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.myexcuses-table-td {
+  padding: 8px;
+  text-align: center;
+}
+
+.myexcuses-table-td-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.myexcuses-table-td-actions {
+  cursor: pointer;
+}
+
+.login-form-input-field-materias {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.login-form-input-field-materias-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.login-form-input-field-materias-label input {
+  cursor: pointer;
+}
+
+.login-form-input-field-materias-label:hover {
+  opacity: 0.8;
+}
+
+.mensaje-error {
+  color: red;
+  margin-bottom: 15px;
+  background-color: #f8d7da;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.mensaje-exito {
+  color: green;
+  margin-bottom: 15px;
+  background-color: #d4edda;
+  padding: 10px;
+  border-radius: 5px;
 }

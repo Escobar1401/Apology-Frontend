@@ -1,0 +1,13 @@
+.download-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.download-icon {
+    width: 25px;
+    height: 25px;
+}

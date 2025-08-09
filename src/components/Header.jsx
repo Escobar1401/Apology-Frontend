@@ -21,6 +21,7 @@ const menuOptions = {
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Mi perfil", link: "profile" },
     { text: "Lista de estudiantes", link: "liststudents" },
+    { text: "Revisiones de excusas", link: "revisions-excuse" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
   Estudiante: [
@@ -28,6 +29,7 @@ const menuOptions = {
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Justificar inasistencia", link: "justification-absence"},
     { text: "Mi perfil", link: "profile" },
+    { text: "Mis excusas", link: "myexcuses" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
   Profesor: [

@@ -31,13 +31,6 @@ function Modal({ title, content, onClose }) {
             <div className="modal-box">
                 <div className="modal-header">
                     <h3>{title}</h3>
-                    <button 
-                        onClick={onClose} 
-                        className="modal-close"
-                        aria-label="Cerrar modal"
-                    >
-                        ✖
-                    </button>
                 </div>
                 <div className="modal-content">
                     {content}
