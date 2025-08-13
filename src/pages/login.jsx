@@ -55,6 +55,22 @@ function Login() {
             if (res.ok && data.status === 'success') {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('rol', data.rol);
+                // Extraer el ID del usuario desde el token JWT
+                if (data.token) {
+                    try {
+                        const payload = JSON.parse(atob(data.token.split('.')[1]));
+                        if (payload.id) {
+                            localStorage.setItem('userId', payload.id);
+                            console.log('ID de usuario extraído del token y guardado:', payload.id);
+                        } else {
+                            console.warn('El token no contiene el campo id:', payload);
+                        }
+                    } catch (e) {
+                        console.error('Error decodificando el token JWT:', e);
+                    }
+                } else {
+                    console.warn('No se encontró el token en la respuesta:', data);
+                }
                 console.log('✅ Login exitoso', data);
                 navigate('/home', { replace: true });
             } else {

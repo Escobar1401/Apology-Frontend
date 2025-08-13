@@ -8,6 +8,46 @@ import html2canvas from "html2canvas";
 function MyExcuses() {
     // Funcion para descargar el PDF
     const handleDownloadPdf = async (excuse) => {
+        // Obtener datos completos del estudiante, tutor y materias
+        let estudiante = null;
+        let tutor = null;
+        let materiasNombres = [];
+        const token = localStorage.getItem('token');
+        try {
+            // Fetch estudiante
+            const resEst = await fetch(`http://localhost:3000/api/usuarios/${excuse.estudiante_id}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            estudiante = await resEst.json();
+            // Fetch tutor legal
+            const resTutor = await fetch(`http://localhost:3000/api/usuarios/estudiantes/${excuse.estudiante_id}/tutor-legal`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            tutor = await resTutor.json();
+            // Fetch materias
+            const resMaterias = await fetch('http://localhost:3000/api/materias', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const materias = await resMaterias.json();
+            // Mapear los nombres de las materias afectadas
+            let materiasAfectadas = excuse.materias_afectadas;
+            if (typeof materiasAfectadas === 'string') {
+                try {
+                    materiasAfectadas = JSON.parse(materiasAfectadas);
+                } catch (e) {
+                    materiasAfectadas = [];
+                }
+            }
+            materiasNombres = materias
+                .filter(m => materiasAfectadas && materiasAfectadas.includes(m.id))
+                .map(m => m.nombre);
+            // Añadir nombres al excuse para usar en el template
+            excuse.materias_afectadas_nombres = materiasNombres;
+        } catch (err) {
+            console.error('Error obteniendo datos de estudiante/tutor/materias:', err);
+            excuse.materias_afectadas_nombres = [];
+        }
+
         // Crear un div temporal para renderizar el contenido del PDF
         const pdfContent = document.createElement('div');
         pdfContent.style.position = 'absolute';
@@ -17,26 +57,35 @@ function MyExcuses() {
 
         // Formatear el contenido para PDF
         pdfContent.innerHTML = `
-                <div style="font-family: Arial, sans-serif;">
-                    <h2 style="text-align: center; color: #2c3e50;">Formulario de Excusa</h2>
-                    <div style="margin: 20px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                        <h3>Datos de la Excusa</h3>
-                        <p><strong>Fecha de ausencia:</strong> ${excuse.fecha_ausencia?.split('T')[0] || 'N/A'}</p>
-                        <p><strong>Motivo:</strong> ${excuse.motivo || 'N/A'}</p>
-                        <p><strong>Materias afectadas:</strong> ${excuse.materia_afectadas || 'N/A'}</p>
-                        <p><strong>Estado:</strong> ${excuse.estado || 'N/A'}</p>
-                        <p><strong>Observaciones:</strong> ${excuse.observaciones || 'Ninguna'}</p>
-                    </div>
-                    <div style="margin-top: 30px; font-size: 12px; color: #7f8c8d;">
-                        <p>Fecha de creación: ${excuse.fecha_creacion?.split('T')[0] || 'N/A'}</p>
-                        <p>Última actualización: ${excuse.fecha_actualizacion?.split('T')[0] || 'N/A'}</p>
-                    </div>
-                    <div style="margin-top: 50px; text-align: right;">
-                        <p>___________________________________</p>
-                        <p>Firma del estudiante</p>
-                    </div>
+            <div style="font-family: Arial, sans-serif; background-color: #e2f1ff; padding: 20px; border-radius: 16px; box-shadow: 0 2px 8px #bcdefe;">
+                <h2 style="text-align: center; background-color: #005f73; color: #ffffff; padding: 14px 10px; border-radius: 10px; margin-bottom: 24px; letter-spacing: 1px;">Formulario de Excusa</h2>
+                <div style="margin: 18px 0; border-bottom: 2px solid #005f73; padding-bottom: 10px; background: #ffffff; border-radius: 8px; box-shadow: 0 1px 4px #cae2f9;">
+                    <h3 style="color: #005f73;">Datos del Estudiante</h3>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Nombre:</strong> ${estudiante ? estudiante.nombres + ' ' + estudiante.apellidos : 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Documento:</strong> ${estudiante?.documento || 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Correo:</strong> ${estudiante?.correo || 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Teléfono:</strong> ${estudiante?.telefono || 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Grado/Grupo:</strong> ${estudiante?.grupo || 'N/A'}</p>
                 </div>
-            `;
+                <div style="margin: 18px 0; border-bottom: 2px solid #005f73; padding-bottom: 10px; background: #ffffff; border-radius: 8px; box-shadow: 0 1px 4px #cae2f9;">
+                    <h3 style="color: #005f73;">Datos del Acudiente</h3>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Nombre:</strong> ${tutor ? tutor.nombres + ' ' + tutor.apellidos : 'No asignado'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Teléfono:</strong> ${tutor?.telefono || 'No asignado'}</p>
+                </div>
+                <div style="margin: 18px 0; border-bottom: 2px solid #005f73; padding-bottom: 10px; background: #ffffff; border-radius: 8px; box-shadow: 0 1px 4px #cae2f9;">
+                    <h3 style="color: #005f73;">Datos de la Excusa</h3>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Fecha de ausencia:</strong> ${excuse.fecha_ausencia?.split('T')[0] || 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Motivo:</strong> ${excuse.motivo || 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Materias afectadas:</strong> ${Array.isArray(excuse.materias_afectadas_nombres) ? excuse.materias_afectadas_nombres.join(', ') : 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Estado:</strong> ${excuse.estado || 'N/A'}</p>
+                    <p style="color: #000; margin: 6px;"><strong style='color:#005f73;'>Observaciones:</strong> ${excuse.observaciones || 'Ninguna'}</p>
+                </div>
+                <div style="margin-top: 30px; font-size: 13px; color: #8a8a8a; text-align: right;">
+                    <p>Fecha de creación: ${excuse.fecha_creacion?.split('T')[0] || 'N/A'}</p>
+                    <p>Última actualización: ${excuse.fecha_actualizacion?.split('T')[0] || 'N/A'}</p>
+                </div>
+            </div>
+        `;
 
         // Anexar al body y renderizar
         document.body.appendChild(pdfContent);
@@ -98,17 +147,30 @@ function MyExcuses() {
 
     // Fetch para obtener las excusas del estudiante
     useEffect(() => {
-        fetch("http://localhost:3000/api/justificaciones/{id}")
+        // Obtener el ID del estudiante del localStorage
+        const studentId = localStorage.getItem('userId');
+        console.log('Student ID from localStorage:', studentId);
+        
+        if (!studentId) {
+            setError('No se encontró el ID del estudiante');
+            setLoading(false);
+            return;
+        }
+
+        fetch(`http://localhost:3000/api/justificaciones/estudiante/${studentId}`)
             .then((response) => {
+                console.log('API response status:', response.status);
                 if (!response.ok) throw new Error("Error al obtener excusas");
                 return response.json();
             })
             .then((data) => {
+                console.log('Excuses data received:', data);
                 setExcuses(data);
                 setLoading(false);
             })
             .catch((err) => {
-                setError(err.message);
+                console.error('Error fetching excuses:', err);
+                  setError(err.message);
                 setLoading(false);
             });
     }, []);
