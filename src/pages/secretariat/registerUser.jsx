@@ -1,12 +1,22 @@
+/* Registro de usuario
+
+En este modulo le daremos cumplimiento a el requerimiento funcional RF-01, RF-15, RF-29, RF-43, RF-59 y RF-71.
+
+- Implementacion de la creacion de un usuario.
+- Si se crea un tutor legal, se debe asignar un estudiante.
+- Si se crea un estudiante, se debe asignar un grupo.
+
+*/
+
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PrimaryButton from '../../components/PrimaryButton';
-import SearchBar from '../../components/SearchBar';
 import '../login.css';
 
 function RegisterUsuario() {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // Navegacion para redirigir a la pagina de inicio
 
+    // Estado por defecto para el formulario
     const [form, setForm] = useState({
         documento: '',
         nombres: '',
@@ -17,36 +27,36 @@ function RegisterUsuario() {
         rol: 'Estudiante' // Establecer 'Estudiante' como valor por defecto
     });
 
-    const [loading, setLoading] = useState(false);
-    const [grupos, setGrupos] = useState([]);
-    const [selectedGrupo, setSelectedGrupo] = useState('');
-    const [loadingGrupos, setLoadingGrupos] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [selectedStudent, setSelectedStudent] = useState(null);
-    const [isSearching, setIsSearching] = useState(false);
+    const [loading, setLoading] = useState(false); // Estado de carga
+    const [grupos, setGrupos] = useState([]); // Arreglo con los grupos
+    const [selectedGrupo, setSelectedGrupo] = useState(''); // Grupo seleccionado
+    const [loadingGrupos, setLoadingGrupos] = useState(false); // Estado de carga de grupos
+    const [searchTerm, setSearchTerm] = useState(''); // Busqueda
+    const [searchResults, setSearchResults] = useState([]); // Resultados de busqueda
+    const [selectedStudent, setSelectedStudent] = useState(null); // Estudiante seleccionado
+    const [isSearching, setIsSearching] = useState(false); // Estado de busqueda
 
     // Efecto para cargar grupos cuando el rol es Estudiante y TutorLegal
     useEffect(() => {
         const fetchGrupos = async () => {
-            if (form.rol === 'Estudiante' || form.rol === 'TutorLegal') {
-                setLoadingGrupos(true);
-                try {
-                    const response = await fetch('http://localhost:3000/api/grupos');
-                    if (response.ok) {
-                        const data = await response.json();
-                        setGrupos(data);
-                    } else {
-                        console.error('Error al cargar los grupos');
+            if (form.rol === 'Estudiante' || form.rol === 'TutorLegal') { // Si el rol es Estudiante o TutorLegal
+                setLoadingGrupos(true); // Se activa el estado de carga
+                try { // Se intenta cargar los grupos
+                    const response = await fetch('http://localhost:3000/api/grupos'); // Se llama a la API para cargar los grupos
+                    if (response.ok) { // Si la respuesta es exitosa
+                        const data = await response.json(); // Se convierte la respuesta a JSON
+                        setGrupos(data); // Se actualiza el estado de los grupos
+                    } else { // Si la respuesta no es exitosa
+                        console.error('Error al cargar los grupos'); // Se muestra un un mensaje de error
                     }
-                } catch (error) {
-                    console.error('Error de conexión:', error);
-                } finally {
-                    setLoadingGrupos(false);
+                } catch (error) { // Si hay un error
+                    console.error('Error de conexión:', error); // Se muestra un mensaje de error
+                } finally { // Finalmente
+                    setLoadingGrupos(false); // Se desactiva el estado de carga
                 }
             } else {
-                setGrupos([]);
-                setSelectedGrupo('');
+                setGrupos([]); // Se actualiza el estado de los grupos
+                setSelectedGrupo(''); // Se actualiza el estado del grupo seleccionado
             }
         };
         fetchGrupos();
@@ -55,87 +65,93 @@ function RegisterUsuario() {
     // Función para buscar estudiantes
     const searchStudents = async (term) => {
         if (term.length < 3) {
-            setSearchResults([]);
+            setSearchResults([]); // Se actualiza el estado de los resultados de busqueda cuando el termino de busqueda es menor a 3 caracteres
             return;
         }
 
-        setIsSearching(true);
-        try {
+        setIsSearching(true); // Se activa el estado de busqueda
+        try { // Se intenta buscar estudiantes
             const url = selectedGrupo
-                ? `http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante&grupoId=${selectedGrupo}`
-                : `http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante`;
+                ? `http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante&grupoId=${selectedGrupo}` // True, si se selecciona un grupo
+                : `http://localhost:3000/api/usuarios/search?q=${term}&rol=Estudiante`; // False, si no se selecciona un grupo
 
-            const response = await fetch(url);
-            if (response.ok) {
-                const data = await response.json();
-                setSearchResults(data);
+            const response = await fetch(url); // Se llama a la API para buscar estudiantes
+            if (response.ok) { // Si la respuesta es exitosa
+                const data = await response.json(); // Se convierte la respuesta a JSON
+                setSearchResults(data); // Se actualiza el estado de los resultados de busqueda
             }
-        } catch (error) {
-            console.error('Error buscando estudiantes:', error);
+        } catch (error) { // Si hay un error
+            console.error('Error buscando estudiantes:', error); // Se muestra un mensaje de error
         } finally {
-            setIsSearching(false);
+            setIsSearching(false); // Se desactiva el estado de busqueda
         }
     };
 
     // Efecto para buscar estudiantes cuando cambia el grupo seleccionado
     useEffect(() => {
         if (selectedGrupo && searchTerm.length >= 3) {
-            searchStudents(searchTerm);
+            searchStudents(searchTerm); // Se llama a la funcion para buscar estudiantes
         } else {
-            setSearchResults([]);
+            setSearchResults([]); // Se actualiza el estado de los resultados de busqueda
         }
     }, [selectedGrupo]);
 
+    // Funcion para manejar cambios en el campo de busqueda
     const handleSearchChange = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
-        searchStudents(value);
+        const value = e.target.value; // Se actualiza el estado del termino de busqueda
+        setSearchTerm(value); // Se actualiza el estado del termino de busqueda
+        searchStudents(value); // Se llama a la funcion para buscar estudiantes
     };
 
+    // Funcion para manejar la seleccion de un estudiante
     const selectStudent = (student) => {
-        setSelectedStudent(student);
-        setSearchTerm(`${student.nombres} ${student.apellidos} (${student.documento})`);
-        setSearchResults([]);
+        setSelectedStudent(student); // Se actualiza el estado del estudiante seleccionado
+        setSearchTerm(`${student.nombres} ${student.apellidos} (${student.documento})`); // Se actualiza el estado del termino de busqueda
+        setSearchResults([]); // Se actualiza el estado de los resultados de busqueda
     };
 
+    // Funcion para manejar cambios en el campo de busqueda
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prevForm => ({
+        const { name, value } = e.target; // Se actualiza el estado del campo de busqueda
+        setForm(prevForm => ({ // Se actualiza el estado del formulario
             ...prevForm,
-            [name]: value
+            [name]: value 
         }));
     };
 
+    // Funcion para manejar cambios en el campo de busqueda
     const handleGrupoChange = (e) => {
-        setSelectedGrupo(e.target.value);
+        setSelectedGrupo(e.target.value); // Se actualiza el estado del grupo seleccionado
     };
 
+    // Funcion para manejar el envio del formulario
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Se previene el envio del formulario en cada cambio que haga el usuario
 
-        const camposObligatorios = ['documento', 'nombres', 'apellidos', 'telefono', 'correo', 'contraseña'];
-        const camposVacios = camposObligatorios.some(campo => !form[campo]?.trim());
+        const camposObligatorios = ['documento', 'nombres', 'apellidos', 'telefono', 'correo', 'contraseña']; // Se definen los campos obligatorios
+        const camposVacios = camposObligatorios.some(campo => !form[campo]?.trim()); // Se definen los campos vacios
 
         if (camposVacios) {
-            alert('‼️ Todos los campos son obligatorios');
-            return;
+            alert('‼️ Todos los campos son obligatorios'); // Se muestra un mensaje de alerta si los campos obligatorios estan vacios
+            return; // Se retorna para evitar que se envie el formulario
         }
 
         // Validar que si es Tutor Legal, tenga un estudiante seleccionado
         if (form.rol === 'TutorLegal' && !selectedStudent) {
-            alert('‼️ Debe seleccionar un estudiante para el tutor legal');
-            return;
+            alert('‼️ Debe seleccionar un estudiante para el tutor legal'); // Se muestra un mensaje de alerta si no se selecciona un estudiante
+            return; // Se retorna para evitar que se envie el formulario
         }
 
-        setLoading(true);
+        setLoading(true); // Se activa el estado de carga
 
         try {
             // Crear el usuario
             const userDataToSend = {
-                ...form,
-                rol: form.rol || 'Estudiante'
+                ...form, // Se envian los datos del formulario
+                rol: form.rol || 'Estudiante' // Se envia el rol del usuario
             };
 
+            // Se envia el usuario a la API
             const userResponse = await fetch('http://localhost:3000/api/usuarios', {
                 method: 'POST',
                 headers: {
@@ -145,15 +161,16 @@ function RegisterUsuario() {
                 body: JSON.stringify(userDataToSend)
             });
 
+            // Se verifica si la respuesta es exitosa
             if (!userResponse.ok) {
-                const error = await userResponse.json().catch(() => ({ mensaje: 'Error desconocido' }));
-                const mensaje = error.mensaje || 'Error en el registro';
-                alert('‼️ ' + mensaje);
-                return;
+                const error = await userResponse.json().catch(() => ({ mensaje: 'Error desconocido' })); // Se verifica si la respuesta es exitosa
+                const mensaje = error.mensaje || 'Error en el registro'; // Se verifica si la respuesta es exitosa
+                alert('‼️ ' + mensaje); // Se muestra un mensaje de alerta si la respuesta no es exitosa
+                return; // Se retorna para evitar que se envie el formulario
             }
 
-            const userData = await userResponse.json();
-            console.log('Usuario creado - Respuesta del servidor:', userData);
+            const userData = await userResponse.json(); // Se convierte la respuesta a JSON
+            console.log('Usuario creado - Respuesta del servidor:', userData); // Se muestra un mensaje de alerta si la respuesta no es exitosa
 
             // Si es estudiante, asignar al grupo
             if (form.rol === 'Estudiante' && selectedGrupo) {
@@ -178,7 +195,7 @@ function RegisterUsuario() {
                 try {
                     const relacionResponse = await fetch('http://localhost:3000/api/usuarios/tutores/estudiantes', {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         },
