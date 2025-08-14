@@ -24,6 +24,39 @@ function RevisionsExcuse() {
   const [initialLoad, setInitialLoad] = useState(true);
   const pdfRef = useRef(null);
 
+  // Función para aplicar los filtros
+  const applyFilters = (searchTerm, estado) => {
+    let filtered = [...excuses];
+    
+    // Filtrar por término de búsqueda
+    if (searchTerm) {
+      filtered = filtered.filter(excuse => 
+        (excuse.estudiante_nombres + ' ' + excuse.estudiante_apellidos).toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Filtrar por estado
+    if (estado) {
+      filtered = filtered.filter(excuse => excuse.estado === estado);
+    }
+    
+    setFilteredExcuses(filtered);
+  };
+
+  // Función para manejar cambios en la búsqueda
+  const handleSearchChange = (e) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    applyFilters(term, estadoFilter);
+  };
+
+  // Función para manejar cambios en el filtro de estado
+  const handleEstadoChange = (e) => {
+    const estado = e.target.value;
+    setEstadoFilter(estado);
+    applyFilters(searchTerm, estado);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -367,15 +400,17 @@ function RevisionsExcuse() {
         <h2 className="login-form-title">Revisión de excusas</h2>
         <div className="myexcuses-container">
           {/* Filtros */}
-          <div className="myexcuses-filters">
-            <input type="text" placeholder="Buscar por nombre" onChange={handleSearchChange} />
-            <select value={estadoFilter} onChange={handleEstadoChange}>
+          <div className="filter">
+          <label className="filter-select-label" htmlFor="grupo-select">Selecciona un estado: </label>
+
+            <select className="filter-select" value={estadoFilter} onChange={handleEstadoChange}>
               <option value="">Todos</option>
               <option value="Pendiente">Pendiente</option>
               <option value="Aprobada">Aprobada</option>
               <option value="Rechazada">Rechazada</option>
             </select>
           </div>
+
           <table className="myexcuses-table">
             <tbody className="myexcuses-table-body">
               {filteredExcuses.map((excuse) => {
