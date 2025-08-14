@@ -1,5 +1,5 @@
 /*
-Modulo 04: Gestión de Estudiantes
+🔴 Modulo 04: Gestión de Estudiantes 🔴
 
 RF-07: El sistema debe permitir a la secretaría buscar a un estudiante en la base de datos.
 RF-09: El sistema debe permitir a la secretaria acceder a la lista de estudiantes de cada grupo.
@@ -24,13 +24,16 @@ En este modulo le daremos cumplimiento a el requerimiento funcional RF-07, RF-09
 */
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar'; // Componente de barra de búsqueda
 import ImageProfile from '../components/ImageProfile'; // Componente de imagen de perfil
 import QuaternaryButton from '../components/QuaternaryButton'; // Componente de botón cuaternario
 import PrimaryButton from '../components/PrimaryButton'; // Componente de botón primario
 import './login.css'; // Hoja de estilos
+import Modal from '../components/Modal';
 
 function ListStudents() { // Componente principal
+  const navigate = useNavigate(); // Hook para navegación
   const [busqueda, setBusqueda] = useState(''); // Estado para la búsqueda del estudiante
   const [estudiantes, setEstudiantes] = useState([]); // Estado para los estudiantes
   const [resultados, setResultados] = useState([]); // Estado para los resultados de la búsqueda
@@ -115,21 +118,21 @@ function ListStudents() { // Componente principal
   };
 
   return (
-    <div className="login-container"> 
+    <div className="login-container">
       <div className="login-container-form">
         <h1 className="login-container-form-title">Listado de Estudiantes</h1>
 
         {loadingGrupos ? ( // Si se está cargando los grupos
           <p>Cargando grupos...</p>
         ) : error ? ( // Si hay un error
-          <div style={{margin:'5px 0'}}>
-            <p style={{color:'red', margin:'5px 0'}}>{error}</p>
-            <QuaternaryButton text="Reintentar" onClick={() => window.location.reload()}/>
+          <div style={{ margin: '5px 0' }}>
+            <p style={{ color: 'red', margin: '5px 0' }}>{error}</p>
+            <QuaternaryButton text="Reintentar" onClick={() => window.location.reload()} />
           </div>
         ) : (
           <div className="filter">
             <label className="filter-select-label" htmlFor="grupo-select">Selecciona un grupo: </label>
-            <select className="filter-select" id="grupo-select" value={grupoSeleccionado} onChange={handleGrupoChange}> 
+            <select className="filter-select" id="grupo-select" value={grupoSeleccionado} onChange={handleGrupoChange}>
               <option value="">grupo</option>
               {grupos.map(grupo => ( // Mapear los grupos
                 <option key={grupo.id} value={grupo.id}>{grupo.nombre}</option>
@@ -146,11 +149,11 @@ function ListStudents() { // Componente principal
         />
         <QuaternaryButton text="Buscar" onClick={handleBuscar} disabled={!grupoSeleccionado || loadingEstudiantes} />
 
-        {loadingEstudiantes && <p>Cargando estudiantes...</p>} 
+        {loadingEstudiantes && <p>Cargando estudiantes...</p>}
         {error && !loadingGrupos && ( // Si hay un error
-          <div style={{margin:'5px 0'}}>
-            <p style={{color:'red', margin:'5px 0'}}>{error}</p>
-            <QuaternaryButton text="Reintentar" onClick={() => window.location.reload()}/>
+          <div style={{ margin: '5px 0' }}>
+            <p style={{ color: 'red', margin: '5px 0' }}>{error}</p>
+            <QuaternaryButton text="Reintentar" onClick={() => window.location.reload()} />
           </div>
         )}
 
@@ -178,41 +181,48 @@ function ListStudents() { // Componente principal
         )}
 
         {seleccionado && ( // Si se ha seleccionado un estudiante
-          <div className="detalle-estudiante-modal">
-            <h2 className="detalle-estudiante-title">Detalle del Estudiante</h2>
-            <div className="detalle-estudiante-subtitle">
-              <span className="detalle-estudiante-title">{seleccionado.nombres} {seleccionado.apellidos}</span>
-            </div>
-            <div className="detalle-estudiante-image">
-              <ImageProfile />
-            </div>
-            <div className="detalle-estudiante-info">
-              <span className="detalle-estudiante-info-label">Documento:</span>
-              <span className="detalle-estudiante-info-value">{seleccionado.documento}</span>
-            </div>
-            <div className="detalle-estudiante-info">
-              <span className="detalle-estudiante-info-label">Nombres:</span>
-              <span className="detalle-estudiante-info-value">{seleccionado.nombres}</span>
-            </div>
-            <div className="detalle-estudiante-info">
-              <span className="detalle-estudiante-info-label">Apellidos:</span>
-              <span className="detalle-estudiante-info-value">{seleccionado.apellidos}</span>
-            </div>
-            <div className="detalle-estudiante-info">
-              <span className="detalle-estudiante-info-label">Correo:</span>
-              <span className="detalle-estudiante-info-value">{seleccionado.correo}</span>
-            </div>
-            <div className="detalle-estudiante-info">
-              <span className="detalle-estudiante-info-label">Teléfono:</span>
-              <span className="detalle-estudiante-info-value">{seleccionado.telefono || 'No especificado'}</span>
-            </div>
-            <div className="detalle-estudiante-info">
-              <span className="detalle-estudiante-info-label">Grupo:</span>
-              <span className="detalle-estudiante-info-value">{seleccionado.grupo || 'No asignado'}</span>
-            </div>
-
-            <PrimaryButton text="Cerrar" onClick={handleCerrarDetalle} />
-          </div>
+          <Modal
+            title="Detalle del Estudiante"
+            content={
+              <div onClick={e => e.stopPropagation()}>
+                <div className="detalle-estudiante-subtitle">
+                  <span className="detalle-estudiante-title">{seleccionado.nombres} {seleccionado.apellidos}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <span className="detalle-estudiante-info-label">Documento:</span>
+                  <span className="detalle-estudiante-info-value">{seleccionado.documento}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <span className="detalle-estudiante-info-label">Nombres:</span>
+                  <span className="detalle-estudiante-info-value">{seleccionado.nombres}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <span className="detalle-estudiante-info-label">Apellidos:</span>
+                  <span className="detalle-estudiante-info-value">{seleccionado.apellidos}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <span className="detalle-estudiante-info-label">Correo:</span>
+                  <span className="detalle-estudiante-info-value">{seleccionado.correo}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <span className="detalle-estudiante-info-label">Teléfono:</span>
+                  <span className="detalle-estudiante-info-value">{seleccionado.telefono || 'No especificado'}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <span className="detalle-estudiante-info-label">Grupo:</span>
+                  <span className="detalle-estudiante-info-value">{seleccionado.grupo || 'No asignado'}</span>
+                </div>
+                <div className="detalle-estudiante-info">
+                  <QuaternaryButton 
+                    text="Ver Excusas del estudiante" 
+                    onClick={() => navigate(`/student-excuses/${seleccionado.id}`)} 
+                    style={{ marginTop: '15px' }}
+                  />
+                </div>
+              </div>
+            }
+            onClose={handleCerrarDetalle}
+          />
         )}
       </div>
     </div>

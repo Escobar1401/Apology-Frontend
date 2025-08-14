@@ -13,6 +13,7 @@ import JustificationAbsence from "./pages/student/JustificationAbsence"; // Impo
 import ListStudents from "./pages/liststudents"; // Importar componente de lista de estudiantes
 import RevisionsExcuse from "./pages/secretariat/revisionsExcuse"; // Importar componente de revisiones de excusas
 import MyExcuses from "./pages/student/myexcuses"; // Importar componente de mis excusas
+import StudentExcuses from "./pages/studentExcuses"; // Importar componente de mis excusas
 function App() {
   return (
     <>
@@ -29,6 +30,7 @@ function App() {
           <Route path="/editprofile" element={<EditProfile />} /> {/* Ruta de editar perfil */}
           <Route path="/justification-absence" element={<JustificationAbsence />} /> {/* Ruta de justificación de ausencia */}
           <Route path="/liststudents" element={<ListStudents />} /> {/* Ruta de lista de estudiantes */}
+          <Route path="/student-excuses/:id" element={<StudentExcuses />} />
           <Route path="/revisions-excuse" element={<RevisionsExcuse />} /> {/* Ruta de revisiones de excusas */}
           <Route path="/myexcuses" element={<MyExcuses />} /> {/* Ruta de mis excusas */}
           <Route path="*" element={ 

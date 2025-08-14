@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import EyeButton from "../../components/EyeButton";
-import DownloadButton from "../../components/DownloadButton";
-import Modal from "../../components/Modal";
+import EyeButton from "../components/EyeButton";
+import DownloadButton from "../components/DownloadButton";
+import Modal from "../components/Modal";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { useParams } from 'react-router-dom';
 
-function MyExcuses() {
+function StudentExcuses() {
     // Funcion para descargar el PDF
     const handleDownloadPdf = async (excuse) => {
         // Obtener datos completos del estudiante, tutor y materias
@@ -145,91 +146,92 @@ function MyExcuses() {
     const [error, setError] = useState('');
     const [selectedExcuse, setSelectedExcuse] = useState(null);
 
-    // Función para obtener los nombres de las materias
-    const fetchMateriasNombres = async (materiasAfectadas) => {
-        try {
-            if (!materiasAfectadas) return [];
-            
-            // Si ya es un array de strings (nombres), devolverlo directamente
-            if (Array.isArray(materiasAfectadas) && materiasAfectadas.length > 0 && typeof materiasAfectadas[0] === 'string') {
-                return materiasAfectadas;
-            }
-            
-            // Si es un string, intentar parsearlo
-            let idsMaterias = materiasAfectadas;
-            if (typeof idsMaterias === 'string') {
-                try {
-                    idsMaterias = JSON.parse(idsMaterias);
-                } catch (e) {
-                    console.error('Error al parsear materias_afectadas:', e);
-                    return [];
-                }
-            }
-            
-            // Si no es un array o está vacío, devolver array vacío
-            if (!Array.isArray(idsMaterias) || idsMaterias.length === 0) {
-                return [];
-            }
-            
-            // Obtener todas las materias
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/materias', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            
-            if (!response.ok) throw new Error('Error al obtener las materias');
-            
-            const materias = await response.json();
-            
-            // Mapear IDs a nombres de materias
-            return materias
-                .filter(m => m && m.id && idsMaterias.includes(m.id))
-                .map(m => m.nombre || `Materia ${m.id}`);
-                
-        } catch (err) {
-            console.error('Error en fetchMateriasNombres:', err);
-            return [];
-        }
-    };
+    const { id } = useParams();
 
-    // Obtener las excusas del estudiante
+    // Fetch para obtener las excusas del estudiante
     useEffect(() => {
+        console.log('Student ID from URL:', id);
+
+        if (!id) {
+            setError('No se proporcionó un ID de estudiante');
+            setLoading(false);
+            return;
+        }
+
         const fetchExcuses = async () => {
-            const token = localStorage.getItem('token');
-            const studentId = localStorage.getItem('userId');
-
-            if (!studentId) {
-                setError('No se encontró el ID del estudiante');
-                setLoading(false);
-                return;
-            }
-
             try {
-                // Obtener las excusas
-                const response = await fetch(`http://localhost:3000/api/justificaciones/estudiante/${studentId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                // Primero obtener las excusas
+                const response = await fetch(`http://localhost:3000/api/justificaciones/estudiante/${id}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
                 
-                if (!response.ok) throw new Error('Error al obtener las excusas');
+                if (!response.ok) throw new Error("Error al obtener excusas");
                 
                 let excusesData = await response.json();
                 
-                // Procesar cada excusa para agregar los nombres de las materias
-                const processedExcuses = [];
-                for (const excuse of excusesData) {
-                    const materiasNombres = await fetchMateriasNombres(excuse.materias_afectadas);
-                    processedExcuses.push({
-                        ...excuse,
-                        materias_afectadas_nombres: materiasNombres
-                    });
-                }
+                // Para cada excusa, obtener los datos adicionales
+                const excusesWithDetails = await Promise.all(
+                    excusesData.map(async (excuse) => {
+                        try {
+                            // Obtener datos del estudiante
+                            const [estudianteRes, tutorRes, materiasRes] = await Promise.all([
+                                fetch(`http://localhost:3000/api/usuarios/${excuse.estudiante_id}`, {
+                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                }),
+                                fetch(`http://localhost:3000/api/usuarios/estudiantes/${excuse.estudiante_id}/tutor-legal`, {
+                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                }),
+                                fetch('http://localhost:3000/api/materias', {
+                                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                                })
+                            ]);
+                            
+                            const [estudiante, tutor, materias] = await Promise.all([
+                                estudianteRes.json(),
+                                tutorRes.json(),
+                                materiasRes.json()
+                            ]);
+                            
+                            // Procesar materias afectadas
+                            let materiasAfectadas = excuse.materias_afectadas;
+                            if (typeof materiasAfectadas === 'string') {
+                                try {
+                                    materiasAfectadas = JSON.parse(materiasAfectadas);
+                                } catch (e) {
+                                    materiasAfectadas = [];
+                                }
+                            }
+                            
+                            const materiasNombres = materias
+                                .filter(m => materiasAfectadas && materiasAfectadas.includes(m.id))
+                                .map(m => m.nombre);
+                            
+                            // Retornar la excusa con los datos adicionales
+                            return {
+                                ...excuse,
+                                materias_afectadas_nombres: materiasNombres,
+                                estudiante_nombre: `${estudiante.nombres} ${estudiante.apellidos}`,
+                                tutor_nombre: tutor ? `${tutor.nombres} ${tutor.apellidos}` : 'No asignado'
+                            };
+                            
+                        } catch (err) {
+                            console.error('Error procesando datos de la excusa:', err);
+                            return {
+                                ...excuse,
+                                materias_afectadas_nombres: [],
+                                estudiante_nombre: 'Error al cargar',
+                                tutor_nombre: 'Error al cargar'
+                            };
+                        }
+                    })
+                );
                 
-                setExcuses(processedExcuses);
+                setExcuses(excusesWithDetails);
                 setLoading(false);
                 
             } catch (err) {
-                console.error('Error al cargar las excusas:', err);
-                setError('Error al cargar las excusas');
+                console.error('Error fetching excuses:', err);
+                setError(err.message);
                 setLoading(false);
             }
         };
@@ -239,7 +241,7 @@ function MyExcuses() {
 
     return (
         <div className="login-container">
-            <h2 className="login-form-title">Mis excusas</h2>
+            <h2 className="login-form-title">Excusas del estudiante {}</h2>
 
             <div className="myexcuses-container">
                 <table className="myexcuses-table">
@@ -282,4 +284,4 @@ function MyExcuses() {
     );
 }
 
-export default MyExcuses;
+export default StudentExcuses;
