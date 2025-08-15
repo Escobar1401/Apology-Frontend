@@ -14,6 +14,7 @@ import ListStudents from "./pages/liststudents"; // Importar componente de lista
 import RevisionsExcuse from "./pages/secretariat/revisionsExcuse"; // Importar componente de revisiones de excusas
 import MyExcuses from "./pages/student/myexcuses"; // Importar componente de mis excusas
 import StudentExcuses from "./pages/studentExcuses"; // Importar componente de mis excusas
+import AssistanceAbsence from "./pages/teacher/assistanceAbsence"; // Importar componente de asistencia de ausencia
 function App() {
   return (
     <>
@@ -33,6 +34,7 @@ function App() {
           <Route path="/student-excuses/:id" element={<StudentExcuses />} />
           <Route path="/revisions-excuse" element={<RevisionsExcuse />} /> {/* Ruta de revisiones de excusas */}
           <Route path="/myexcuses" element={<MyExcuses />} /> {/* Ruta de mis excusas */}
+          <Route path="/assistance-absence" element={<AssistanceAbsence />} /> {/* Ruta de asistencia de ausencia */}
           <Route path="*" element={ 
             <div className='container'>
               <div className='login-container-title'>

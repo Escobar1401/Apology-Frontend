@@ -37,6 +37,7 @@ const menuOptions = {
     { text: "Actualizar contraseña", link: "updatepass" },
     { text: "Mi perfil", link: "profile" },
     { text: "Lista de estudiantes", link: "liststudents" },
+    { text: "Toma de asistencia", link: "assistance-absence" },
     { text: "Soporte técnico", link: "techsupport" },
   ],
   TutorLegal: [
